@@ -8,9 +8,13 @@
     "start": "next start"
   },
   "dependencies": {
+    "fs": "0.0.1-security",
     "next": "9.0.7",
     "react": "16.10.2",
     "react-dom": "16.10.2",
     "strips": "0.0.10"
+  },
+  "devDependencies": {
+    "husky": "^3.0.9"
   }
 }
