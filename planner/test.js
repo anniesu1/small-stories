@@ -1,7 +1,8 @@
 var strips = require('strips');
 
 // Load the domain and problem.
-strips.load('./dinner_domain.txt', './dinner_problem.txt', function(domain, problem) {
+strips.load('./dinner_domain.txt', './dinner_problem.txt',
+            function(domain, problem) {
     // Run the problem against the domain.
     // var propValue;
     // for(var propName in domain) {
@@ -21,13 +22,8 @@ strips.load('./dinner_domain.txt', './dinner_problem.txt', function(domain, prob
     }
 });
 
-strips.load('./story_world_domain.txt', './story_world_problem.txt', function(domain, problem) {
-    // Run the problem against the domain.
-    // var propValue;
-    // for(var propName in domain) {
-    //   propValue = domain[propName];
-    //   console.log(propName, propValue);
-    // }
+strips.load('./story_world_domain.txt', './story_world_problem.txt',
+            function(domain, problem) {
     var solutions = strips.solve(domain, problem, false /* isDFS*/,
                                  100 /*maxNumSolutions*/);
     console.log('Number of solutions: ' + solutions.length);
