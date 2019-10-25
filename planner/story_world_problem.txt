@@ -1,6 +1,11 @@
 (define (problem cat-problem)
   (:domain cat-world)
-  (:objects tabby)
-  (:init (CAT tabby) (ASLEEP tabby))
-  (:goal (and (RESTED tabby) (ASLEEP tabby)))
+  (:objects tabby shorthair
+    fried-rice strawberry-shortcake tuna-sandwich
+  )
+  (:init (CAT tabby) (CAT shorthair)
+    (ASLEEP tabby) (ASLEEP shorthair)
+    (FOOD strawberry-shortcake) (FOOD tuna-sandwich) (FOOD fried-rice)
+  )
+  (:goal (and (ASLEEP tabby) (ASLEEP shorthair) (full-day tabby) (full-day shorthair)))
 )

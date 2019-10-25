@@ -28,8 +28,9 @@ strips.load('./story_world_domain.txt', './story_world_problem.txt', function(do
     //   propValue = domain[propName];
     //   console.log(propName, propValue);
     // }
-    var solutions = strips.solve(domain, problem);
-
+    var solutions = strips.solve(domain, problem, false /* isDFS*/,
+                                 100 /*maxNumSolutions*/);
+    console.log('Number of solutions: ' + solutions.length);
     // Display each solution.
     for (var i in solutions) {
         var solution = solutions[i];
