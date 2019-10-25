@@ -1,0 +1,22 @@
+(define (domain cat-world)
+  (:requirements :strips)
+  (:predicates
+    (CAT ?x)
+    (AWAKE ?x)
+    (ASLEEP ?x)
+    (RESTED ?x)
+  )
+
+  (:action sleep
+    :parameters (?x)
+    :precondition (and (CAT ?x) (not (RESTED ?x)) (AWAKE ?x))
+    :effect (and (ASLEEP ?x) (RESTED ?x)
+                (not (AWAKE ?x))))
+  )
+
+  (:action wakeup
+    :parameters (?x)
+    :precondition (and (CAT ?x) (ASLEEP ?x))
+    :effect (and (AWAKE ?x)
+                (not (ASLEEP ?x))))
+  )

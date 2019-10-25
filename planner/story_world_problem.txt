@@ -1,0 +1,6 @@
+(define (problem cat-problem)
+  (:domain cat-world)
+  (:objects tabby)
+  (:init (CAT tabby) (ASLEEP tabby))
+  (:goal (and (RESTED tabby) (ASLEEP tabby)))
+)
