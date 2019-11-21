@@ -1,6 +1,7 @@
 import React from 'react'
 import Head from 'next/head'
 import Nav from '../components/nav'
+import axios from 'axios';
 //import { GetBFSSolutions } from '../planner/test.js';
 //import StoryText from '../components/story_text'
 

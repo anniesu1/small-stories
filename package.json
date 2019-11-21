@@ -8,6 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "axios": "^0.19.0",
     "fs": "0.0.1-security",
     "next": "9.0.7",
     "react": "16.10.2",
