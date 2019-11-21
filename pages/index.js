@@ -1,11 +1,25 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Head from 'next/head'
 import Nav from '../components/nav'
 import axios from 'axios';
 //import { GetBFSSolutions } from '../planner/test.js';
-//import StoryText from '../components/story_text'
 
-const Home = () => (
+function Home() {
+  let [story, setStory] = useState("");
+
+  useEffect(() => {
+      axios.post("/api/generateStory").then(response => {
+        if (!response.data.success) {
+          console.log("error");
+        }
+        else {
+          console.log("success");
+          setStory(response.data);
+        }
+      });
+  });
+
+  return (
   <div>
     <Head>
       <title>Home</title>
@@ -70,6 +84,7 @@ const Home = () => (
       }
     `}</style>
   </div>
-)
+  );
+}
 
-export default Home
+export default Home;
