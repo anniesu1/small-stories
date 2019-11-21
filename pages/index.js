@@ -14,7 +14,9 @@ function Home() {
         }
         else {
           console.log("success");
-          setStory(response.data);
+          console.log(response.data);
+          
+          setStory(response.data.story);
         }
       });
   });
@@ -31,8 +33,9 @@ function Home() {
     <div className='hero'>
       <h1 className='title'>Let's make a story !</h1>
       <p className='description'>
-        <code>sort of.</code>
+        <code>{story}}</code>
       </p>
+
 
 
     </div>
