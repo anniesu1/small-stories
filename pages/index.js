@@ -15,11 +15,11 @@ function Home() {
         else {
           console.log("success");
           console.log(response.data);
-          
+
           setStory(response.data.story);
         }
       });
-  });
+  }, []); // Second argument: empty array to only execute effect one time
 
   return (
   <div>
@@ -32,8 +32,11 @@ function Home() {
 
     <div className='hero'>
       <h1 className='title'>Let's make a story !</h1>
-      <p className='description'>
-        <code>{story}}</code>
+      <p className='row'>
+        {story}
+      </p>
+      <p className='row'>
+        hello!
       </p>
 
 

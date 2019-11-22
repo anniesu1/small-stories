@@ -2,6 +2,14 @@ const express = require("express");
 const router = express.Router();
 const strips = require('strips');
 
+/*
+ * Planner-script is used to tune the story world domain and problem
+ * quickly by outputting steps in the terminal.
+ *
+ * 1. Open your terminal. Navigate to the project directory /planner
+ * 2. Run the following
+ *    > node planner-script.js
+ */
 strips.load('./story_world_domain.txt', './story_world_problem.txt',
             function(domain, problem) {
     var solutions = strips.solve(domain, problem, true /* isDFS*/,
