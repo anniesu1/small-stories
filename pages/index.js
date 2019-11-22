@@ -31,6 +31,11 @@ function Home() {
     <Nav />
 
     <div className='hero'>
+      <img src="/static/cat.png"
+           alt='cat'
+           style={{maxWidth: '25%'}}
+           className='center'
+       />
       <h1 className='title'>Let's make a story !</h1>
       <p className='row'>
         {story}
@@ -87,6 +92,12 @@ function Home() {
         padding: 12px 0 0;
         font-size: 13px;
         color: #333;
+      }
+      .center {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        width: 50%;
       }
     `}</style>
   </div>
