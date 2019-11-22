@@ -2,6 +2,7 @@
   (:requirements :strips)
   (:predicates
     (CAT ?x)
+    (CHAR ?x)
     (FOOD ?x)
     (AWAKE ?x)
     (ASLEEP ?x)
@@ -9,31 +10,64 @@
     (full-day ?x)
     (happy ?x)
     (satiated ?x)
+    (in-love ?x)
+    (friends ?x ?y)
+    (in-forest ?x)
+    (in-danger ?x)
   )
 
   (:action sleep
     :parameters (?x)
     :precondition (and (CAT ?x) (not (RESTED ?x)) (AWAKE ?x)
-      (full-day ?x) (satiated ?x))
-    :effect (and (ASLEEP ?x) (RESTED ?x)
-                (not (AWAKE ?x))))
+      (full-day ?x) (satiated ?x) (not (in-danger ?x)) (not (in-forest ?x)))
+    :effect (and (END ?x))
   )
 
-  (:action wakeup
+  (:action wake-up
     :parameters (?x)
     :precondition (and (CAT ?x) (ASLEEP ?x))
     :effect (and (AWAKE ?x)
                 (not (ASLEEP ?x))))
   )
 
-  (:action befriend
-    :parameters (?x ?y)
-    :precondition (and (CAT ?x) (CAT ?y) (AWAKE ?x) (AWAKE ?y))
-    :effect (and (happy ?x) (happy ?y) (full-day ?x) (full-day ?y))
-  )
-
   (:action cook
     :parameters (?x ?y)
-    :precondition (and (CAT ?x) (FOOD ?y) (AWAKE ?x) (not (satiated ?x)))
+    :precondition (and (CAT ?x) (FOOD ?y) (AWAKE ?x) (not (satiated ?x)) (not (in-forest ?x)))
     :effect (and (satiated ?x))
+  )
+
+  (:action befriend
+    :parameters (?x ?y)
+    :precondition (and (CAT ?x) (CHAR ?y) (AWAKE ?x) (AWAKE ?y) (not (in-danger ?x)))
+    :effect (and (happy ?x) (happy ?y) (full-day ?x) (full-day ?y) (friends ?x ?y))
+  )
+
+  (:action fall-in-love-with
+    :parameters(?x ?y)
+    :precondition (and (CAT ?x) (CHAR ?y) (AWAKE ?x) (AWAKE ?y) (friends ?x ?y) (not (in-danger ?x)))
+    :effect (and (in-love ?x) (END ?x))
+  )
+
+  (:action stumble-upon-a-magical-forest-one-day
+    :parameters (?x)
+    :precondition (and (CAT ?x) (AWAKE ?x))
+    :effect (and (in-forest ?x))
+  )
+
+  (:action encounter-evil-dragon
+    :parameters (?x)
+    :precondition (and (CAT ?x) (AWAKE ?x) (in-forest ?x))
+    :effect (and (in-danger ?x))
+  )
+
+  (:action die-in-battle
+    :parameters (?x)
+    :precondition (and (CAT ?x) (AWAKE ?x) (in-danger ?x) (in-forest ?x))
+    :effect (and (END ?x))
+  )
+
+  (:action defeat-enemy
+    :parameters (?x)
+    :precondition (and (CAT ?x) (AWAKE ?x) (in-danger ?x) (in-forest ?x))
+    :effect (and (END ?x))
   )

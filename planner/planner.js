@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const strips = require('strips');
 
+// TODO: replace with new domain/problem
 const domainString = "(define (domain cat-world) \
   (:requirements :strips) \
   (:predicates \
@@ -52,7 +53,7 @@ const problemString = "(define (problem cat-problem) \
 // Load the domain and problem.
 router.use("/generateStory", async (req, res) => {
   console.log("> Executing story generation");
-
+  var location = getLocation();
   strips.load(domainString, problemString,
     function(domain, problem) {
       var solutions = strips.solve(domain, problem, true /* isDFS*/,
@@ -72,15 +73,25 @@ router.use("/generateStory", async (req, res) => {
       var randomIndex = getRandomInt(solutions.length);
       let selectedPlan = solutions[randomIndex];
       let sentences = constructSentences(selectedPlan.path);
-      let story = assembleStory(sentences);
+      let story = assembleStory(location, sentences);
       console.log(story);
-      console.log("var story in route is: " + story);
       res.send({
         success: true,
         story: story
       });
   }, true /* isCode */);
 })
+
+/*
+ * Choose a location from the preset options at random
+ */
+function getLocation() {
+  var places = ["the hilly city of San Francisco", "the vibrant city of Tokyo",
+    "the Eiffel Tower of Paris", "a cottage by the ocean",
+    "a university campus"];
+  var index = getRandomInt(places.length);
+  return places[index];
+}
 
 function getRandomInt(max) {
   return Math.floor(Math.random() * Math.floor(max));
@@ -99,8 +110,15 @@ function constructSentences(solution) {
   return sentences;
 }
 
-function assembleStory(sentences) {
-  let preamble = "There once lived a small tabby cat named Momo. Momo lived in the bustling city of San Francisco."
+function assembleStory(location, sentences) {
+  let preamble = "There once lived a small tabby cat named Momo. \
+    Momo lived in " + location + ". This is the story of her rather \
+    ordinary life. ";
+
+    // TODO: sentence decorator
+  // for (let i = 0; i < sentences.length; i++) {
+  //   var sentence = decorateSentence(sentences[i]);
+  // }
 
   let ending = "The end."
   let story = preamble + sentences + ending;
@@ -114,6 +132,8 @@ function applyTemplate(step) {
   // TODO: allow for variation within the templates.
   let sentence = "";
   let tokens = step.split(" ");
+  let verb = tokens[0];
+  verb.replace("-", " "); // TODO: correct handling of verbs
 
   if (tokens.length == 2) {
     // Length 2: simple swap of subject and verb
