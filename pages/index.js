@@ -36,7 +36,7 @@ function Home() {
         {story}
       </p>
       <p className='row'>
-        hello! the story is currently
+        hello! we are hard at work creating a story...
       </p>
 
 

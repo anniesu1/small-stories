@@ -48,13 +48,13 @@
     :effect (and (in-love ?x) (END ?x))
   )
 
-  (:action stumble-upon-a-magical-forest-one-day
+  (:action stumble-upon-a-magical-forest-during-a-walk
     :parameters (?x)
     :precondition (and (CAT ?x) (AWAKE ?x))
     :effect (and (in-forest ?x))
   )
 
-  (:action encounter-evil-dragon
+  (:action encounter-an-evil-dragon
     :parameters (?x)
     :precondition (and (CAT ?x) (AWAKE ?x) (in-forest ?x))
     :effect (and (in-danger ?x))

@@ -2,58 +2,97 @@ const express = require("express");
 const router = express.Router();
 const strips = require('strips');
 
-// TODO: replace with new domain/problem
-const domainString = "(define (domain cat-world) \
-  (:requirements :strips) \
-  (:predicates \
-    (CAT ?x) \
-    (FOOD ?x) \
-    (AWAKE ?x) \
-    (ASLEEP ?x) \
-    (RESTED ?x) \
-    (full-day ?x) \
-    (happy ?x) \
-    (satiated ?x) \
-  ) \
-  (:action sleep \
-    :parameters (?x) \
-    :precondition (and (CAT ?x) (not (RESTED ?x)) (AWAKE ?x) \
-      (full-day ?x) (satiated ?x)) \
-    :effect (and (ASLEEP ?x) (RESTED ?x) \
-                (not (AWAKE ?x)))) \
-  ) \
-  (:action wakeup \
-    :parameters (?x) \
-    :precondition (and (CAT ?x) (ASLEEP ?x)) \
-    :effect (and (AWAKE ?x) \
-                (not (ASLEEP ?x)))) \
-  ) \
-  (:action befriend \
-    :parameters (?x ?y) \
-    :precondition (and (CAT ?x) (CAT ?y) (AWAKE ?x) (AWAKE ?y)) \
-    :effect (and (happy ?x) (happy ?y) (full-day ?x) (full-day ?y)) \
-  ) \
-  (:action cook \
-    :parameters (?x ?y) \
-    :precondition (and (CAT ?x) (FOOD ?y) (AWAKE ?x) (not (satiated ?x))) \
-    :effect (and (satiated ?x)) \
-  )";
-const problemString = "(define (problem cat-problem) \
-  (:domain cat-world) \
-  (:objects tabby shorthair \
-    fried-rice strawberry-shortcake tuna-sandwich \
-  ) \
-  (:init (CAT tabby) (CAT shorthair) \
-    (ASLEEP tabby) (ASLEEP shorthair)\
+const domainString = "(define (domain cat-world)\
+  (:requirements :strips)\
+  (:predicates\
+    (CAT ?x)\
+    (CHAR ?x)\
+    (FOOD ?x)\
+    (AWAKE ?x)\
+    (ASLEEP ?x)\
+    (RESTED ?x)\
+    (full-day ?x)\
+    (happy ?x)\
+    (satiated ?x)\
+    (in-love ?x)\
+    (friends ?x ?y)\
+    (in-forest ?x)\
+    (in-danger ?x)\
+  )\
+  (:action sleep\
+    :parameters (?x)\
+    :precondition (and (CAT ?x) (not (RESTED ?x)) (AWAKE ?x)\
+      (full-day ?x) (satiated ?x) (not (in-danger ?x)) (not (in-forest ?x)))\
+    :effect (and (END ?x))\
+  )\
+  (:action wake-up\
+    :parameters (?x)\
+    :precondition (and (CAT ?x) (ASLEEP ?x))\
+    :effect (and (AWAKE ?x)\
+                (not (ASLEEP ?x))))\
+  )\
+  (:action cook\
+    :parameters (?x ?y)\
+    :precondition (and (CAT ?x) (FOOD ?y) (AWAKE ?x) (not (satiated ?x)) (not (in-forest ?x)))\
+    :effect (and (satiated ?x))\
+  )\
+  (:action befriend\
+    :parameters (?x ?y)\
+    :precondition (and (CAT ?x) (CHAR ?y) (AWAKE ?x) (AWAKE ?y) (not (in-danger ?x)))\
+    :effect (and (happy ?x) (happy ?y) (full-day ?x) (full-day ?y) (friends ?x ?y))\
+  )\
+  (:action fall-in-love-with\
+    :parameters(?x ?y)\
+    :precondition (and (CAT ?x) (CHAR ?y) (AWAKE ?x) (AWAKE ?y) (friends ?x ?y) (not (in-danger ?x)))\
+    :effect (and (in-love ?x) (END ?x))\
+  )\
+  (:action murder\
+    :parameters(?x ?y)\
+    :precondition (and (CAT ?x) (CHAR ?y) (AWAKE ?x) (AWAKE ?y) (friends ?x ?y) (not (in-danger ?x)))\
+    :effect (and (END ?x))\
+  )\
+  (:action stumble-upon-a-magical-forest-during-a-walk\
+    :parameters (?x)\
+    :precondition (and (CAT ?x) (AWAKE ?x))\
+    :effect (and (in-forest ?x))\
+  )\
+  (:action encounter-an-evil-dragon\
+    :parameters (?x)\
+    :precondition (and (CAT ?x) (AWAKE ?x) (in-forest ?x))\
+    :effect (and (in-danger ?x))\
+  )\
+  (:action die-in-battle\
+    :parameters (?x)\
+    :precondition (and (CAT ?x) (AWAKE ?x) (in-danger ?x) (in-forest ?x))\
+    :effect (and (END ?x))\
+  )\
+  (:action defeat-enemy\
+    :parameters (?x)\
+    :precondition (and (CAT ?x) (AWAKE ?x) (in-danger ?x) (in-forest ?x))\
+    :effect (and (END ?x))\
+  )\
+"
+const problemString = "(define (problem cat-problem)\
+  (:domain cat-world)\
+  (:objects tabby shorthair\
+    fried-rice strawberry-shortcake tuna-sandwich\
+  )\
+  (:init (CAT tabby) (CHAR shorthair)\
+    (ASLEEP tabby) (AWAKE shorthair)\
     (FOOD strawberry-shortcake) (FOOD tuna-sandwich) (FOOD fried-rice)\
   )\
-  (:goal (and (ASLEEP tabby) (ASLEEP shorthair) (full-day tabby) (full-day shorthair)))\
+  (:goal (and (END tabby))\
 )"
+
+// TODO: more useless decorators
+
+const location = getLocation();
+const leadName = getLeadName();
+const supportingName = getSupportingName();
 
 // Load the domain and problem.
 router.use("/generateStory", async (req, res) => {
   console.log("> Executing story generation");
-  var location = getLocation();
   strips.load(domainString, problemString,
     function(domain, problem) {
       var solutions = strips.solve(domain, problem, true /* isDFS*/,
@@ -73,7 +112,7 @@ router.use("/generateStory", async (req, res) => {
       var randomIndex = getRandomInt(solutions.length);
       let selectedPlan = solutions[randomIndex];
       let sentences = constructSentences(selectedPlan.path);
-      let story = assembleStory(location, sentences);
+      let story = assembleStory(sentences);
       console.log(story);
       res.send({
         success: true,
@@ -85,6 +124,18 @@ router.use("/generateStory", async (req, res) => {
 /*
  * Choose a location from the preset options at random
  */
+function getLeadName() {
+ let names = ["Momo", "Chi", "Toru", "Maru", "Mabel"];
+ let index = getRandomInt(names.length);
+ return names[index];
+}
+
+function getSupportingName() {
+ let names = ["Mittens", "Moo", "Yori"];
+ let index = getRandomInt(names.length);
+ return names[index];
+}
+
 function getLocation() {
   var places = ["the hilly city of San Francisco", "the vibrant city of Tokyo",
     "the Eiffel Tower of Paris", "a cottage by the ocean",
@@ -99,7 +150,7 @@ function getRandomInt(max) {
 
 /*
  * Transform STRIPS planner output into grammatically-correct sentences by
- * applying templates.
+ * applying templates. No periods yet.
  */
 function constructSentences(solution) {
   let sentences = [];
@@ -107,65 +158,113 @@ function constructSentences(solution) {
     let sentence = applyTemplate(solution[i]);
     sentences.push(sentence);
   }
+  sentences = stylizeSentences(sentences);
   return sentences;
 }
 
-function assembleStory(location, sentences) {
-  let preamble = "There once lived a small tabby cat named Momo. \
-    Momo lived in " + location + ". This is the story of her rather \
-    ordinary life. ";
+function stylizeSentences(sentences) {
+  // Incorporate pronoun replacement, narrative voice, transition words
+  let previouslyUsedName = false;
+  for (let i = 0; i < sentences.length; i++) {
+    let sentence = sentences[i];
+    if (sentence.indexOf("wake") != -1) {
+      sentences[i] = sentences[i] + " at the sound of her alarm";
+      continue;
+    }
+    if (sentence.indexOf("befriend") != -1) {
+      sentences[i] = sentences[i] + " named " + supportingName;
+      sentences[i] = sentences[i] + ", and the two begin spending a lot of time together";
+      continue;
+    }
 
-    // TODO: sentence decorator
-  // for (let i = 0; i < sentences.length; i++) {
-  //   var sentence = decorateSentence(sentences[i]);
-  // }
+    if (Math.random() > 0.5 && i != 0) {
+      // At random, add a transition word
+      // TODO: allow for variant transition words
+      sentences[i] = "Then, " + sentence.toLowerCase();
+    }
+    else if (Math.random() > 0.3 && i != 0) {
+      // At random, replace proper nouns with pronouns/names
+      // TODO: expand
+      if (sentence.indexOf("The tabby") != -1) {
+        sentences[i] = sentences[i].replace("The tabby", leadName);
+      }
+      if (sentence.indexOf("the tabby") != -1) {
+        sentences[i] = sentences[i].replace("the tabby", leadName);
+      }
+    }
 
-  let ending = "The end."
-  let story = preamble + sentences + ending;
-  return story;
+    //console.log(sentences[i]);
+    // if (previouslyUsedNoun && (Math.random() > 0.5)) {
+    //   // Replace with pronoun
+    //   previouslyUsedNoun = false;
+    //
+    //   // At random, decide whether to change to pronoun or name
+    //   if (sentence.indexOf())
+    // }
+    // else {
+    //   previouslyUsedNoun = true;
+    // }
+  }
+  return sentences;
+}
+
+function assembleStory(sentences) {
+ let preamble = "There once lived a small tabby cat named " + leadName +
+ " who lived in " + location + ". This is the story of her rather ordinary life. ";
+
+ let storySentences = "";
+ for (let i = 0; i < sentences.length; i++) {
+   storySentences += sentences[i] + ". ";
+ }
+
+ let ending = "The end."
+ let story = preamble + storySentences + ending;
+ return story;
 }
 
 /*
  * Transform a single step into a sentence (in present tense).
  */
-function applyTemplate(step) {
+ function applyTemplate(step) {
   // TODO: allow for variation within the templates.
   let sentence = "";
   let tokens = step.split(" ");
-  let verb = tokens[0];
-  verb.replace("-", " "); // TODO: correct handling of verbs
 
   if (tokens.length == 2) {
     // Length 2: simple swap of subject and verb
     let verb = applyVerbTense("PRESENT", tokens[0]);
-    sentence += "The " + tokens[1] + " " + verb + ".";
+    sentence += "The " + tokens[1] + " " + verb;
   }
   else if (tokens.length == 3) {
     // Length 3: subject, verb, direct object
     let verb = applyVerbTense("PRESENT", tokens[0]);
-    sentence += "The " + tokens[1] + " " + verb + " the " + tokens[2] + ".";
+    sentence += "The " + tokens[1] + " " + verb + " the " + tokens[2];
   }
   return sentence;
 }
 
 /*
- * Apply a specified verb tense to a given verb. Currently supported verb tenses
- * are PAST, PRESENT, and FUTURE.
+ * Properly format a verb. Then, apply a specified verb tense to a given verb.
+ * Currently supported verb tenses are PAST, PRESENT, and FUTURE.
  */
 function applyVerbTense(tense, verb) {
+  // Find the first occurrence of "-", which we use to denote space in PDDL
+  let index = verb.indexOf("-");
+  let leftover = "";
+  if (index != -1) {
+    leftover = " " + verb.substring(index + 1).replace(/-/g, " ");
+    verb = verb.substring(0, index);
+  }
   if (tense === "PAST") {
-    let output = "" + verb + "ed";
+    let output = "" + verb + "ed" + leftover;
     return output;
   }
   else if (tense === "PRESENT") {
-    let output = "" + verb + "s";
-    if (verb === "wakeup") {
-      output = "wakes up";
-    }
+    let output = "" + verb + "s" + leftover;
     return output;
   }
   else if (tense === "FUTURE") {
-    let output = "will " + verb
+    let output = "will " + verb + leftover;
     return output;
   }
 }

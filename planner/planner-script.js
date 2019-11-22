@@ -10,9 +10,12 @@ const strips = require('strips');
  * 2. Run the following
  *    > node planner-script.js
  */
- // Load the domain and problem.
+ // Load the constant variables in the story
+ const location = getLocation(); // Global setting variable
+ const leadName = getLeadName();
+ const supportingName = getSupportingName();
+
  console.log("> Running planner script");
- var location = getLocation();
  strips.load("./story_world_domain.txt", "./story_world_problem.txt",
    function(domain, problem) {
      var solutions = strips.solve(domain, problem, true /* isDFS*/,
@@ -32,7 +35,7 @@ const strips = require('strips');
      var randomIndex = getRandomInt(solutions.length);
      let selectedPlan = solutions[randomIndex];
      let sentences = constructSentences(selectedPlan.path);
-     let story = assembleStory(location, sentences);
+     let story = assembleStory(sentences);
      console.log(story);
 
  }, false /* isCode */);
@@ -40,11 +43,23 @@ const strips = require('strips');
  /*
   * Choose a location from the preset options at random
   */
+function getLeadName() {
+  let names = ["Momo", "Chi", "Toru", "Maru", "Mabel"];
+  let index = getRandomInt(names.length);
+  return names[index];
+}
+
+function getSupportingName() {
+  let names = ["Mittens", "Moo", "Yori"];
+  let index = getRandomInt(names.length);
+  return names[index];
+}
+
  function getLocation() {
-   var places = ["the hilly city of San Francisco", "the vibrant city of Tokyo",
+   let places = ["the hilly city of San Francisco", "the vibrant city of Tokyo",
      "the Eiffel Tower of Paris", "a cottage by the ocean",
      "a university campus"];
-   var index = getRandomInt(places.length);
+   let index = getRandomInt(places.length);
    return places[index];
  }
 
@@ -54,21 +69,58 @@ const strips = require('strips');
 
  /*
   * Transform STRIPS planner output into grammatically-correct sentences by
-  * applying templates.
+  * applying templates. No periods yet.
   */
  function constructSentences(solution) {
    let sentences = [];
    for (let i = 0; i < solution.length; i++) {
      let sentence = applyTemplate(solution[i]);
-     //sentence = stylizeSentence(sentence);
      sentences.push(sentence);
+   }
+   sentences = stylizeSentences(sentences);
+   return sentences;
+ }
+
+ function stylizeSentences(sentences) {
+   // Incorporate pronoun replacement, narrative voice, transition words
+   let previouslyUsedName = false;
+   for (let i = 0; i < sentences.length; i++) {
+     let sentence = sentences[i];
+     if (sentence.indexOf("wake") != -1) {
+       sentences[i] = sentences[i] + " at the sound of her alarm";
+       continue;
+     }
+     if (sentence.indexOf("befriend") != -1) {
+       sentences[i] = sentences[i] + " named " + supportingName;
+       sentences[i] = sentences[i] + ", and the two begin spending a lot of time together";
+       continue;
+     }
+     // At random, add a transition word
+     if (Math.random() > 0.5 && i != 0) {
+       sentences[i] = "Then, " + sentences[i].toLowerCase();
+     }
+     else if (Math.random() > 0.3 && i != 0) {
+       sentences[i] = sentences[i].replace("The tabby", leadName);
+     }
+
+     //console.log(sentences[i]);
+     // if (previouslyUsedNoun && (Math.random() > 0.5)) {
+     //   // Replace with pronoun
+     //   previouslyUsedNoun = false;
+     //
+     //   // At random, decide whether to change to pronoun or name
+     //   if (sentence.indexOf())
+     // }
+     // else {
+     //   previouslyUsedNoun = true;
+     // }
    }
    return sentences;
  }
 
-function assembleStory(location, sentences) {
-  let preamble = "There once lived a small tabby cat named Momo. Momo lived in "
-    + location + ". This is the story of her rather ordinary life. ";
+function assembleStory(sentences) {
+  let preamble = "There once lived a small tabby cat named " + leadName +
+  " who lived in " + location + ". This is the story of her rather ordinary life. ";
 
   let storySentences = "";
   for (let i = 0; i < sentences.length; i++) {
@@ -107,7 +159,6 @@ function assembleStory(location, sentences) {
   */
  function applyVerbTense(tense, verb) {
    // Find the first occurrence of "-", which we use to denote space in PDDL
-   //let index = verb.length - 1;
    let index = verb.indexOf("-");
    let leftover = "";
    if (index != -1) {
