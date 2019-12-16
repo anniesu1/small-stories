@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react'
 import Head from 'next/head'
 import Nav from '../components/nav'
 import axios from 'axios';
+import Fade from 'react-reveal/Fade';
+import StoryList from '../components/StoryList'
 //import { GetBFSSolutions } from '../planner/test.js';
 
 function Home() {
-  let [story, setStory] = useState("");
+  let [story, setStory] = useState([]);
 
   useEffect(() => {
       axios.post("/api/generateStory").then(response => {
@@ -13,7 +15,7 @@ function Home() {
           console.log("error");
         }
         else {
-          console.log("success");
+          console.log("> Story was generated");
           console.log(response.data);
 
           setStory(response.data.story);
@@ -38,11 +40,15 @@ function Home() {
        />
       <h1 className='title'>Let's make a story !</h1>
       <p className='row'>
-        {story}
-      </p>
-      <p className='row'>
         hello! we are hard at work creating a story...
       </p>
+      <div style={{textAlign: "center"}}>
+        <Fade top>
+          <div className='card'>
+            <h3>{story}</h3>
+          </div>
+        </Fade>
+      </div>
 
 
 
@@ -73,19 +79,20 @@ function Home() {
       }
       .card {
         padding: 18px 18px 24px;
-        width: 220px;
+        width: 700px;
         text-align: left;
         text-decoration: none;
         color: #434343;
         border: 1px solid #9b9b9b;
+        display: inline-block;
       }
       .card:hover {
         border-color: #067df7;
       }
       .card h3 {
         margin: 0;
-        color: #067df7;
-        font-size: 18px;
+        color: #000000;
+        font-size: 20px;
       }
       .card p {
         margin: 0;

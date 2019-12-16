@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const strips = require('strips');
-
 /*
  * Planner-script is used to tune the story world domain and problem
  * quickly by outputting steps in the terminal.
@@ -16,10 +15,10 @@ const strips = require('strips');
  const supportingName = getSupportingName();
 
  console.log("> Running planner script");
- strips.load("./story_world_domain.txt", "./story_world_problem.txt",
+ strips.load("./planner/story_world_domain.txt", "./planner/story_world_problem.txt",
    function(domain, problem) {
      var solutions = strips.solve(domain, problem, true /* isDFS*/,
-                                  100 /*maxNumSolutions*/);
+                                  200 /*maxNumSolutions*/);
      console.log('Number of solutions: ' + solutions.length);
      // Display each solution.
      // for (var i in solutions) {

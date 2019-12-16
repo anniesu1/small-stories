@@ -86,10 +86,6 @@ const problemString = "(define (problem cat-problem)\
 
 // TODO: more useless decorators
 
-const location = getLocation();
-const leadName = getLeadName();
-const supportingName = getSupportingName();
-
 // Load the domain and problem.
 router.use("/generateStory", async (req, res) => {
   console.log("> Executing story generation");
@@ -108,11 +104,17 @@ router.use("/generateStory", async (req, res) => {
           // }
       // }
 
-      // Pick a solution at random
+      // Persistent variables: name and location
+      var location = getLocation();
+      var leadName = getLeadName();
+      var supportingName = getSupportingName();
+
+      // Pick a solution at random and transform it into a coherent story
       var randomIndex = getRandomInt(solutions.length);
       let selectedPlan = solutions[randomIndex];
-      let sentences = constructSentences(selectedPlan.path);
-      let story = assembleStory(sentences);
+      let sentences = constructSentences(selectedPlan.path, leadName, 
+                                         supportingName, location);
+      let story = assembleStory(sentences, leadName, location);
       console.log(story);
       res.send({
         success: true,
@@ -122,7 +124,7 @@ router.use("/generateStory", async (req, res) => {
 })
 
 /*
- * Choose a location from the preset options at random
+ * Choose a character name/location from the preset options at random
  */
 function getLeadName() {
  let names = ["Momo", "Chi", "Toru", "Maru", "Mabel"];
@@ -131,7 +133,7 @@ function getLeadName() {
 }
 
 function getSupportingName() {
- let names = ["Mittens", "Moo", "Yori"];
+ let names = ["Mittens", "Moo", "Yori, Kumo"];
  let index = getRandomInt(names.length);
  return names[index];
 }
@@ -152,17 +154,17 @@ function getRandomInt(max) {
  * Transform STRIPS planner output into grammatically-correct sentences by
  * applying templates. No periods yet.
  */
-function constructSentences(solution) {
+function constructSentences(solution, leadName, supportingName, location) {
   let sentences = [];
   for (let i = 0; i < solution.length; i++) {
     let sentence = applyTemplate(solution[i]);
     sentences.push(sentence);
   }
-  sentences = stylizeSentences(sentences);
+  sentences = stylizeSentences(sentences, leadName, supportingName, location);
   return sentences;
 }
 
-function stylizeSentences(sentences) {
+function stylizeSentences(sentences, leadName, supportingName, location) {
   // Incorporate pronoun replacement, narrative voice, transition words
   let previouslyUsedName = false;
   for (let i = 0; i < sentences.length; i++) {
@@ -208,18 +210,19 @@ function stylizeSentences(sentences) {
   return sentences;
 }
 
-function assembleStory(sentences) {
+function assembleStory(sentences, leadName, location) {
  let preamble = "There once lived a small tabby cat named " + leadName +
  " who lived in " + location + ". This is the story of her rather ordinary life. ";
 
- let storySentences = "";
+ let storySentences = [];
+ storySentences.push(preamble);
  for (let i = 0; i < sentences.length; i++) {
-   storySentences += sentences[i] + ". ";
+   storySentences.push(sentences[i] + ".");
  }
 
  let ending = "The end."
- let story = preamble + storySentences + ending;
- return story;
+ storySentences.push(ending);
+ return storySentences;
 }
 
 /*
