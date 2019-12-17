@@ -43,15 +43,8 @@ function Home() {
         hello! we are hard at work creating a story...
       </p>
       <div style={{textAlign: "center"}}>
-        <Fade top>
-          <div className='card'>
-            <h3>{story}</h3>
-          </div>
-        </Fade>
+        <StoryList storySentences={story}></StoryList>
       </div>
-
-
-
     </div>
 
     <style jsx>{`

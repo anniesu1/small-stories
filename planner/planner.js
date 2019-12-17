@@ -3,75 +3,109 @@ const router = express.Router();
 const strips = require('strips');
 
 const domainString = "(define (domain cat-world)\
-  (:requirements :strips)\
-  (:predicates\
-    (CAT ?x)\
-    (CHAR ?x)\
-    (FOOD ?x)\
-    (AWAKE ?x)\
-    (ASLEEP ?x)\
-    (RESTED ?x)\
-    (full-day ?x)\
-    (happy ?x)\
-    (satiated ?x)\
-    (in-love ?x)\
-    (friends ?x ?y)\
-    (in-forest ?x)\
-    (in-danger ?x)\
-  )\
-  (:action sleep\
-    :parameters (?x)\
-    :precondition (and (CAT ?x) (not (RESTED ?x)) (AWAKE ?x)\
-      (full-day ?x) (satiated ?x) (not (in-danger ?x)) (not (in-forest ?x)))\
-    :effect (and (END ?x))\
-  )\
-  (:action wake-up\
-    :parameters (?x)\
-    :precondition (and (CAT ?x) (ASLEEP ?x))\
-    :effect (and (AWAKE ?x)\
-                (not (ASLEEP ?x))))\
-  )\
-  (:action cook\
-    :parameters (?x ?y)\
-    :precondition (and (CAT ?x) (FOOD ?y) (AWAKE ?x) (not (satiated ?x)) (not (in-forest ?x)))\
-    :effect (and (satiated ?x))\
-  )\
-  (:action befriend\
-    :parameters (?x ?y)\
-    :precondition (and (CAT ?x) (CHAR ?y) (AWAKE ?x) (AWAKE ?y) (not (in-danger ?x)))\
-    :effect (and (happy ?x) (happy ?y) (full-day ?x) (full-day ?y) (friends ?x ?y))\
-  )\
-  (:action fall-in-love-with\
-    :parameters(?x ?y)\
-    :precondition (and (CAT ?x) (CHAR ?y) (AWAKE ?x) (AWAKE ?y) (friends ?x ?y) (not (in-danger ?x)))\
-    :effect (and (in-love ?x) (END ?x))\
-  )\
-  (:action murder\
-    :parameters(?x ?y)\
-    :precondition (and (CAT ?x) (CHAR ?y) (AWAKE ?x) (AWAKE ?y) (friends ?x ?y) (not (in-danger ?x)))\
-    :effect (and (END ?x))\
-  )\
-  (:action stumble-upon-a-magical-forest-during-a-walk\
-    :parameters (?x)\
-    :precondition (and (CAT ?x) (AWAKE ?x))\
-    :effect (and (in-forest ?x))\
-  )\
-  (:action encounter-an-evil-dragon\
-    :parameters (?x)\
-    :precondition (and (CAT ?x) (AWAKE ?x) (in-forest ?x))\
-    :effect (and (in-danger ?x))\
-  )\
-  (:action die-in-battle\
-    :parameters (?x)\
-    :precondition (and (CAT ?x) (AWAKE ?x) (in-danger ?x) (in-forest ?x))\
-    :effect (and (END ?x))\
-  )\
-  (:action defeat-enemy\
-    :parameters (?x)\
-    :precondition (and (CAT ?x) (AWAKE ?x) (in-danger ?x) (in-forest ?x))\
-    :effect (and (END ?x))\
-  )\
-"
+(:requirements :strips)\
+(:predicates\
+  (CAT ?x)\
+  (CHAR ?x)\
+  (FOOD ?x)\
+  (AWAKE ?x)\
+  (ASLEEP ?x)\
+  (RESTED ?x)\
+  (full-day ?x)\
+  (happy ?x)\
+  (satiated ?x)\
+  (in-love ?x)\
+  (friends ?x ?y)\
+  (in-forest ?x)\
+  (in-danger ?x)\
+  (has-power ?x)\
+  (won-prize ?x)\
+  (is-a-writer ?x)\
+  (on-island ?x)\
+)\
+(:action sleep\
+  :parameters (?x)\
+  :precondition (and (CAT ?x) (not (RESTED ?x)) (AWAKE ?x)\
+    (full-day ?x) (satiated ?x) (not (in-danger ?x)) (not (in-forest ?x)))\
+  :effect (and (END ?x))\
+)\
+(:action wake-up\
+  :parameters (?x)\
+  :precondition (and (CAT ?x) (ASLEEP ?x))\
+  :effect (and (AWAKE ?x)\
+              (not (ASLEEP ?x))))\
+)\
+(:action cook\
+  :parameters (?x ?y)\
+  :precondition (and (CAT ?x) (FOOD ?y) (AWAKE ?x) (not (satiated ?x)) (not (in-forest ?x)))\
+  :effect (and (satiated ?x))\
+)\
+(:action decide-to-run-for-president\
+  :parameters (?x)\
+  :precondition (and (CAT ?x) (AWAKE ?x) (not (in-forest ?x)) (satiated ?x) (not (in-danger ?x)))\
+  :effect (and (has-power ?x))\
+)\
+(:action win-a-nobel-prize-for-noble-deeds\
+  :parameters (?x)\
+  :precondition (and (CAT ?x) (AWAKE ?x) (not (in-forest ?x)) (satiated ?x) (not (in-danger ?x)) (has-power ?x))\
+  :effect (and (happy ?x) (won-prize ?x))\
+)\
+(:action become-the-target-of-an-evil-corporation-of-mice\
+  :parameters (?x)\
+  :precondition (and (CAT ?x) (AWAKE ?x) (not (in-forest ?x)) (satiated ?x) (not (in-danger ?x)) (has-power ?x) (won-prize ?x))\
+  :effect (and (in-danger ?x))\
+)\
+(:action move-to-a-secluded-island\
+  :parameters (?x)\
+  :precondition (and (CAT ?x) (AWAKE ?x) (not (in-forest ?x)) (satiated ?x) (not (in-danger ?x)) (won-prize ?x))\
+  :effect (and (happy ?x) (on-island ?x))\
+)\
+(:action become-a-writer-and-poet\
+  :parameters (?x)\
+  :precondition (and (CAT ?x) (AWAKE ?x) (not (in-forest ?x)) (satiated ?x) (not (in-danger ?x)) (has-power ?x) (not (is-a-painter)))\
+  :effect (and (happy ?x) (is-a-writer ?x))\
+)\
+(:action become-a-painter\
+  :parameters (?x)\
+  :precondition (and (CAT ?x) (AWAKE ?x) (not (in-forest ?x)) (satiated ?x) (not (in-danger ?x)) (has-power ?x) (on-island ?x) (not (is-a-writer ?x)))\
+  :effect (and (happy ?x) (is-a-painter ?x))\
+)\
+(:action premiere-a-solo-exhibition-at-the-MoMA\
+  :parameters (?x)\
+  :precondition (and (CAT ?x) (AWAKE ?x) (not (in-forest ?x)) (satiated ?x) (not (in-danger ?x)) (has-power ?x) (on-island ?x) (is-a-painter ?x))\
+  :effect (and (happy ?x))\
+)\
+(:action befriend\
+  :parameters (?x ?y)\
+  :precondition (and (CAT ?x) (CHAR ?y) (AWAKE ?x) (AWAKE ?y) (not (in-danger ?x)))\
+  :effect (and (happy ?x) (happy ?y) (full-day ?x) (full-day ?y) (friends ?x ?y))\
+)\
+(:action fall-in-love-with\
+  :parameters(?x ?y)\
+  :precondition (and (CAT ?x) (CHAR ?y) (AWAKE ?x) (AWAKE ?y) (friends ?x ?y) (not (in-danger ?x)))\
+  :effect (and (in-love ?x) (END ?x))\
+)\
+(:action stumble-upon-a-magical-forest-during-a-walk\
+  :parameters (?x)\
+  :precondition (and (CAT ?x) (AWAKE ?x) (not (in-danger ?x)))\
+  :effect (and (in-forest ?x))\
+)\
+(:action encounter-an-evil-dragon\
+  :parameters (?x)\
+  :precondition (and (CAT ?x) (AWAKE ?x) (in-forest ?x))\
+  :effect (and (in-danger ?x))\
+)\
+(:action die-in-battle-against-evil-forces\
+  :parameters (?x)\
+  :precondition (and (CAT ?x) (AWAKE ?x) (in-danger ?x))\
+  :effect (and (END ?x))\
+)\
+(:action defeat-enemy\
+  :parameters (?x)\
+  :precondition (and (CAT ?x) (AWAKE ?x) (in-danger ?x))\
+  :effect (and (END ?x))\
+)"
+
 const problemString = "(define (problem cat-problem)\
   (:domain cat-world)\
   (:objects tabby shorthair\
