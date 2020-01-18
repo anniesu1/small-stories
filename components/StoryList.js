@@ -50,6 +50,9 @@ function getImage(sentence) {
     else if (sentence.includes("nobel")) {
         return "/static/nobel.jpg"
     }
+    else {
+        return "/static/cat.png"
+    }
 }
 const StoryList = ({ storySentences }) => (
     <div>

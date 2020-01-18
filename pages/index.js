@@ -16,8 +16,6 @@ function Home() {
         }
         else {
           console.log("> Story was generated");
-          console.log(response.data);
-
           setStory(response.data.story);
         }
       });

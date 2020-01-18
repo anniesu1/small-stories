@@ -118,16 +118,14 @@ const problemString = "(define (problem cat-problem)\
   (:goal (and (END tabby))\
 )"
 
-// TODO: more useless decorators
-
 // Load the domain and problem.
 router.use("/generateStory", async (req, res) => {
   console.log("> Executing story generation");
   strips.load(domainString, problemString,
     function(domain, problem) {
       var solutions = strips.solve(domain, problem, true /* isDFS*/,
-                                   100 /*maxNumSolutions*/);
-      console.log('Number of solutions: ' + solutions.length);
+                                   70 /*maxNumSolutions*/);
+      //console.log('Number of solutions: ' + solutions.length);
       // Display each solution.
       // for (var i in solutions) {
           // var solution = solutions[i];
@@ -149,7 +147,7 @@ router.use("/generateStory", async (req, res) => {
       let sentences = constructSentences(selectedPlan.path, leadName, 
                                          supportingName, location);
       let story = assembleStory(sentences, leadName, location);
-      console.log(story);
+      //console.log(story);
       res.send({
         success: true,
         story: story
